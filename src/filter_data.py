@@ -15,12 +15,18 @@ def filter_and_save_results(main_table_path, filter_table_path, output_dir):
 
         # 提取筛选条件和子表名称
         filter_conditions = df_filter[['子表名称', '年份', '品类']].drop_duplicates()
+        print(f"总表结构: {df_main.shape}, 列名: {list(df_main.columns)}")
+        print(f"筛选条件数量: {len(filter_conditions)}")
 
         # 分组生成子表
-        for row in filter_conditions.itertuples(index=False):
+        for idx, row in enumerate(filter_conditions.itertuples(index=False), 1):
             table_name, year, category = row
+            print(f"\n处理条件 {idx}: 年份={year}, 品类={category}")
+            
             # 过滤数据
             filtered_data = df_main[(df_main['年份'] == year) & (df_main['品类'] == category)]
+            print(f"过滤结果: {len(filtered_data)} 行数据")
+            
             # 保存为子表
             output_path = os.path.join(output_dir, f"{table_name}.csv")
             filtered_data.to_csv(output_path, index=False)
