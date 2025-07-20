@@ -96,19 +96,18 @@ def apply_filters() -> None:
     
     global filtered_data
     filtered_data = []
-    print(data_store)
-    print(filter_store)
     
+    # 遍历筛选条件，每条筛选条件需要完全匹配
     for data_item in data_store:
-        match = True
         for filter_item in filter_store:
-            field = filter_item.get("字段")
-            value = filter_item.get("值")
-            if field not in data_item or data_item[field] != value:
-                match = False
+            match = True
+            for field, value in filter_item.items():
+                if str(data_item.get(field)) != str(value):
+                    match = False
+                    break
+            if match:
+                filtered_data.append(data_item)
                 break
-        if match:
-            filtered_data.append(data_item)
     
     logger.info(f"筛选完成，共 {len(filtered_data)} 条记录")
 
