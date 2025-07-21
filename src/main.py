@@ -150,9 +150,10 @@ def apply_filters() -> None:
             f.write(f"# 筛选条件: {' '.join(f'{k}={v}' for k, v in filter_item.items())}\n")
             if filtered_data[condition_name]:
                 clean_data = [dict(row) for row in filtered_data[condition_name]]
-                writer = csv.DictWriter(f, fieldnames=clean_data[0].keys())
-                writer.writeheader()
-                writer.writerows(clean_data)
+                # 转置数据
+                df = pd.DataFrame(clean_data)
+                df = df.T
+                df.to_csv(f, header=False, encoding="utf-8")
             else:
                 # 即使没有数据也创建带表头的空文件
                 fieldnames = [f for f in (data_store[0].keys() if data_store else []) 
@@ -163,9 +164,68 @@ def apply_filters() -> None:
         logger.info(f"{condition_name} 筛选完成，共 {len(filtered_data[condition_name])} 条记录，已保存到 {output_path}")
 
 
-def export_to_xlsx() -> None:
-    """生成新的 XLSX 文件（空方法，暂用日志占位）"""
-    logger.info("正在生成新的 XLSX 文件")
+def export_to_xlsx(input_file: str) -> None:
+    """
+    生成新的 XLSX 文件，包含总表、总表筛选和每个筛选条件的结果。
+    
+    Returns:
+        None: 无返回值，但会生成一个新的XLSX文件。
+    
+    Raises:
+        ValueError: 如果 data_store 或 filter_store 未加载。
+    """
+    try:
+        data_store
+        filter_store
+    except NameError:
+        raise ValueError("数据未加载，请先调用 extract_data 和 extract_filters 方法")
+    
+    # 生成输出文件名
+    input_filename = os.path.splitext(INPUT_XLSX)[0]
+    timestamp = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
+    output_filename = f"{input_filename}_筛选结果_{timestamp}.xlsx"
+    output_path = os.path.join("outputs", output_filename)
+    
+    # 确保输出目录存在
+    os.makedirs("outputs", exist_ok=True)
+
+    # 读取源文件表头
+    source_excel_file = pd.ExcelFile(input_file)
+    source_df = pd.read_excel(input_file, sheet_name="总表")
+    export_column_header = source_df.iloc[:, 0].tolist()  # 转换为列表
+    
+    # 使用 ExcelWriter 写入多个Sheet
+    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
+        # 写入总表
+        if data_store:
+            df_total = pd.DataFrame(data_store)
+            # 转置数据
+            df_total = df_total.T
+            # 插入原始的第一列数据作为新列
+            df_total.insert(0, "原始第一列", export_column_header)
+            df_total.to_excel(writer, sheet_name="总表", header=False, index=False)
+        
+        # 写入总表筛选
+        if filter_store:
+            df_filters = pd.DataFrame(filter_store)
+            df_filters.to_excel(writer, sheet_name="总表筛选", index=False)
+        
+        # 写入每个筛选条件的结果
+        for idx, filter_item in enumerate(filter_store):
+            condition_name = f"条件_{idx + 1}"
+            if condition_name in filtered_data and filtered_data[condition_name]:
+                df_filtered = pd.DataFrame(filtered_data[condition_name])
+                # 转置数据
+                df_filtered = df_filtered.T
+                # 插入原始的第一列数据作为新列
+                df_filtered.insert(0, "原始第一列", export_column_header)
+                # 转置数据
+                df_filtered = df_filtered.T
+
+                sheet_name = f"{condition_name}_{'_'.join(f'{k}={v}' for k, v in filter_item.items())}"
+                df_filtered.T.to_excel(writer, sheet_name=sheet_name, index=False, header=False)
+    
+    logger.info(f"成功生成XLSX文件: {output_path}")
 
 
 def main() -> None:
@@ -182,7 +242,7 @@ def main() -> None:
     extract_data(INPUT_XLSX)
     extract_filters(INPUT_XLSX)
     apply_filters()
-    export_to_xlsx()
+    export_to_xlsx(INPUT_XLSX)
     
     logger.info("=== 处理完成 ===")
 
