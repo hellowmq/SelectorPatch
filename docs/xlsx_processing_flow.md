@@ -1,4 +1,26 @@
-# XLSX 处理流程设计
+# XLSX 处理流程
+
+## 1. 数据提取阶段
+- **extract_schema**: 提取表结构（预留功能）
+- **extract_data**: 从Excel的"总表"Sheet中提取数据
+- **extract_filters**: 从Excel的"总表筛选"Sheet中提取筛选条件
+
+## 2. 数据处理阶段
+- **apply_filters**: 应用筛选条件生成多个CSV文件
+
+## 3. 结果输出阶段
+- **export_to_xlsx**: 生成包含所有结果的XLSX文件
+
+## 流程图
+```mermaid
+flowchart TD
+    A[开始] --> B[extract_schema]
+    B --> C[extract_data]
+    C --> D[extract_filters]
+    D --> E[apply_filters]
+    E --> F[export_to_xlsx]
+    F --> G[结束]
+```
 
 ## 目标
 将输入的 XLSX 文件拆分为多个中间文件（CSV 或对象），根据筛选标签生成新的 XLSX 文件。

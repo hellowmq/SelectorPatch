@@ -20,8 +20,8 @@ INPUT_XLSX = "mockdata.xlsx"
 
 
 def extract_schema(input_file: str) -> None:
-    """提取表结构（空方法，暂用日志占位）"""
-    logger.info(f"正在提取表结构: {input_file}")
+    """提取表结构（保留为未来版本扩展）"""
+    logger.info(f"表结构提取功能预留: {input_file}")
 
 
 def extract_data(input_file: str) -> None:
@@ -238,7 +238,7 @@ def main() -> None:
         return
     
     # 执行流程
-    extract_schema(INPUT_XLSX)
+    extract_schema(INPUT_XLSX)  # 恢复调用
     extract_data(INPUT_XLSX)
     extract_filters(INPUT_XLSX)
     apply_filters()
