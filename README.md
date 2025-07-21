@@ -10,10 +10,15 @@ SelectorPatch 是一个用于处理Excel数据并生成筛选结果的工具。�
 - 生成包含所有结果的XLSX文件
 
 ## 快速开始
-### 1. 获取项目
+### 1. 创建虚拟环境（推荐）
 ```bash
-git clone https://github.com/hellowmq/SelectorPatch.git
-cd SelectorPatch
+# Linux/macOS
+python -m venv venv
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
 ```
 
 ### 2. 安装依赖
@@ -40,6 +45,7 @@ python src\main.py
 - 确保已安装Python 3.7或更高版本
 - 如果遇到权限问题，请以管理员身份运行命令提示符
 - 如果出现编码问题，在命令前设置编码：`chcp 65001`
+- 如果虚拟环境激活失败，可能需要设置执行策略：`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 
 ## 文件结构
 - `src/main.py`: 主程序入口
