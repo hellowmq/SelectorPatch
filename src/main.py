@@ -264,7 +264,16 @@ def export_to_xlsx(input_file: str) -> None:
                 # 转置数据
                 df_filtered = df_filtered.T
 
-                sheet_name = f"{condition_name}_{'_'.join(f'{k}={v}' for k, v in filter_item.items())}"
+                # 简化工作表名称：只使用筛选值的序列作为标识
+                value_sequence = '_'.join([str(v) for v in filter_item.values() if v != ''])
+                if not value_sequence:
+                    value_sequence = "空值"
+                
+                # 确保工作表名称不超过31个字符（Excel限制）
+                sheet_name = f"{condition_name}_{value_sequence}"
+                if len(sheet_name) > 31:
+                    sheet_name = sheet_name[:31]
+                
                 df_filtered.T.to_excel(writer, sheet_name=sheet_name, index=False, header=False)
     
     logger.info(f"成功生成XLSX文件: {output_path}")
