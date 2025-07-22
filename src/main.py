@@ -3,6 +3,8 @@ import logging
 import os
 import pandas as pd
 from pathlib import Path
+import glob
+from datetime import datetime
 
 # 配置日志
 logging.basicConfig(
@@ -51,6 +53,11 @@ def extract_data(input_file: str) -> None:
         # 读取数据并打印原始样例
         df = pd.read_excel(input_file, sheet_name="总表")
         logger.debug(f"原始数据前3行:\n{df.head(3).to_string()}")
+
+        # 保存总表到 CSV 文件
+        os.makedirs("outputs", exist_ok=True)
+        output_path = os.path.join("outputs", f"总表.csv")
+        df.to_csv(output_path, index=False)
         
         # 转置数据，将第一列作为表头
         df = df.T
@@ -85,10 +92,27 @@ def extract_filters(input_file: str) -> None:
         raise FileNotFoundError(f"输入文件不存在: {input_file}")
     
     try:
-        df = pd.read_excel(input_file, sheet_name="总表筛选")
+        # 读取筛选标签表，将所有列作为字符串处理
+        # 注意：dtype=str 确保所有值被读取为字符串，但不会处理空值
+        df = pd.read_excel(input_file, sheet_name="总表筛选", dtype=str)
+        
+        # 处理空值：将 NaN 转换为空字符串
+        # 即使指定了 dtype=str，空单元格仍会被读取为 NaN
+        df = df.fillna('')
+        
         global filter_store
         filter_store = df.to_dict(orient="records")
         logger.info(f"成功提取筛选标签，共 {len(filter_store)} 条记录")
+        
+        # 保存筛选条件到 CSV 文件
+        os.makedirs("outputs", exist_ok=True)
+        
+        # 添加 condition_group 列
+        filter_df = pd.DataFrame(filter_store)
+        filter_df['condition_group'] = [f"条件_{i+1}" for i in range(len(filter_df))]
+        
+        filter_df.to_csv("outputs/filter_conditions.csv", index=False, encoding='utf-8-sig')
+        logger.info(f"已将筛选条件保存到 outputs/filter_conditions.csv")
     except ValueError as e:
         raise ValueError(f"XLSX 文件中不存在名为 '总表筛选' 的 Sheet: {input_file}") from e
 
@@ -127,39 +151,57 @@ def apply_filters() -> None:
             logger.warning("数据总表为空，请检查输入文件格式和Sheet名称")
         else:
             logger.info(f"成功加载 {len(data_store)} 条数据，首条样例: {data_store[0]}")
+        
         for data_item in data_store:
             match = True
             mismatch_fields = []
+            
             for field, value in filter_item.items():
-                if str(data_item.get(field)) != str(value):
+                # 获取数据项中的字段值
+                data_value = data_item.get(field)
+                
+                # 如果筛选条件值为空，视为通配符（匹配任何值）
+                if value == '':
+                    continue  # 跳过这个条件，匹配任何值
+                
+                # 如果数据项中的字段值为空，但筛选条件值不为空，则不匹配
+                if pd.isna(data_value) or data_value == '':
                     match = False
-                    mismatch_fields.append(f"{field}(期望:{value},实际:{data_item.get(field)})")
+                    mismatch_fields.append(f"{field}(期望:{value},实际:空值)")
                     break
+                
+                # 比较值（字符串比较）
+                if str(data_value) != str(value):
+                    match = False
+                    mismatch_fields.append(f"{field}(期望:{value},实际:{data_value})")
+                    break
+            
             if match:
                 filtered_data[condition_name].append(data_item)
             else:
-                logger.debug(f"数据不匹配: {condition_name} - {', '.join(mismatch_fields)}")
-        logger.debug(f"筛选完成 {condition_name}: 匹配 {len(filtered_data[condition_name])} 条记录")
+                if idx == 0:  # 只记录第一个条件的详细不匹配信息
+                    logger.debug(f"数据不匹配: {condition_name} - {', '.join(mismatch_fields)}")
         
-        # 输出到CSV
+        logger.info(f"筛选完成 {condition_name}: 匹配 {len(filtered_data[condition_name])} 条记录")
+        
+        # 输出到CSV - 使用正常格式（非转置）
         output_path = os.path.join("outputs", f"{condition_name}.csv")
-        with open(output_path, "w", newline="", encoding="utf-8") as f:
+        with open(output_path, "w", newline="", encoding="utf-8-sig") as f:
             # 写入UTF-8 BOM头确保Excel兼容
             f.write("\ufeff")
             # 写入筛选条件作为注释（确保不换行）
             f.write(f"# 筛选条件: {' '.join(f'{k}={v}' for k, v in filter_item.items())}\n")
+            
             if filtered_data[condition_name]:
-                clean_data = [dict(row) for row in filtered_data[condition_name]]
-                # 转置数据
-                df = pd.DataFrame(clean_data)
-                df = df.T
-                df.to_csv(f, header=False, encoding="utf-8")
+                # 创建 DataFrame 并直接写入
+                df = pd.DataFrame(filtered_data[condition_name])
+                df.to_csv(f, index=False, encoding="utf-8-sig")
             else:
                 # 即使没有数据也创建带表头的空文件
-                fieldnames = [f for f in (data_store[0].keys() if data_store else []) 
-                             if f != '序号']
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
+                if data_store:
+                    fieldnames = [f for f in data_store[0].keys() if f != '序号']
+                    writer = csv.DictWriter(f, fieldnames=fieldnames)
+                    writer.writeheader()
         
         logger.info(f"{condition_name} 筛选完成，共 {len(filtered_data[condition_name])} 条记录，已保存到 {output_path}")
 
