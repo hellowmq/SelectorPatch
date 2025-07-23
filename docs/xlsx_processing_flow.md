@@ -7,9 +7,11 @@
 
 ## 2. 数据处理阶段
 - **apply_filters**: 应用筛选条件生成多个CSV文件
+- **auto_clean**: 自动清理输出目录
 
 ## 3. 结果输出阶段
 - **export_to_xlsx**: 生成包含所有结果的XLSX文件
+- **interactive_selection**: 交互式选取操作文件
 
 ## 流程图
 ```mermaid
