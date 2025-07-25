@@ -4,10 +4,12 @@
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
-## [未发布]
+## [0.2.0] - 2025-07-25
 
 ### 新增
 - 添加CHANGELOG.md文件记录版本变更
+- 添加配置系统：支持通过config.yaml配置文件管理参数
+- 添加单元测试框架：为核心功能添加测试用例
 
 ### 修复
 - 修复src/main.py中重复的导入语句问题
@@ -17,6 +19,12 @@
 - 重构全局变量：创建DataManager类管理数据状态
 - 函数职责分离：将apply_filters拆分为更小的函数
 - 完善错误处理：添加更多异常捕获和恢复机制
+- 模块化重构：将功能拆分到独立模块
+  - data_manager.py - 数据管理
+  - data_extractor.py - 数据提取
+  - filter_processor.py - 筛选处理
+  - output_generator.py - 结果输出
+  - config.py - 配置管理
 
 ### 文档
 - 重构README.md，增加项目状态说明和完整使用指南
