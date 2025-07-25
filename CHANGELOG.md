@@ -4,7 +4,7 @@
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
-## [未发布]
+## [0.2.0] - 2025-07-25
 
 ### 新增
 - 添加CHANGELOG.md文件记录版本变更
