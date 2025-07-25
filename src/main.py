@@ -7,15 +7,6 @@ import pandas as pd
 from pathlib import Path
 from clean_output import clean_output_directory
 
-import tkinter as tk
-from tkinter import filedialog
-import csv
-import logging
-import os
-import pandas as pd
-from pathlib import Path
-from clean_output import clean_output_directory
-
 
 # 首先配置日志
 logging.basicConfig(
