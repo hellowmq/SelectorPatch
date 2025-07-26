@@ -4,8 +4,10 @@ __pycache__/
 *.so
 .Python
 build/
-dist/
+# 注释掉 dist/ 以便在 release 分支上包含构建产物
+# dist/
 *.egg-info/
+*.spec
 
 # Excel and CSV
 *.xlsx

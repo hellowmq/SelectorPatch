@@ -44,9 +44,6 @@ def extract_data(input_file: str, data_mgr: DataManager) -> None:
         # 读取数据并打印原始样例
         df = pd.read_excel(input_file, sheet_name="总表")
         data_mgr.logger.debug(f"原始数据前3行:\n{df.head(3).to_string()}")
-
-        # 设置输出目录
-        data_mgr.set_output_dir(os.path.dirname(os.path.abspath(__file__)))
         
         # 保存总表到 CSV 文件
         output_path = os.path.join(data_mgr.output_dir, "总表.csv")

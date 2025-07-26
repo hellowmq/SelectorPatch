@@ -16,7 +16,7 @@ class DataManager:
     
     def set_output_dir(self, base_path: str):
         """设置输出目录"""
-        self.output_dir = os.path.join(base_path, "..", "outputs")
+        self.output_dir = os.path.join(base_path, "outputs")
         os.makedirs(self.output_dir, exist_ok=True)
     
     def clear_data(self):
