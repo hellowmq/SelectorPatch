@@ -70,7 +70,9 @@ def export_to_xlsx(input_file: str, data_mgr: DataManager) -> str:
                     if len(sheet_name) > 31:
                         sheet_name = sheet_name[:31]
                     
-                    df_filtered.to_excel(writer, sheet_name=sheet_name, index=True)
+                    # 插入原始的第一列数据作为新列
+                    df_filtered.insert(0, "原始第一列", export_column_header)
+                    df_filtered.to_excel(writer, sheet_name=sheet_name, header=False, index=False)
         
         data_mgr.logger.info(f"成功生成XLSX文件: {output_path}")
         return output_path

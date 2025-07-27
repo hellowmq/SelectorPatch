@@ -210,9 +210,7 @@ def main() -> None:
                 print(f"警告: 无法复制结果文件到任何可访问的位置，原始文件保留在: {abs_output_path}")
         
         # 强制退出程序，确保所有线程都被终止
-        import time
         print(f"[时间: {time.strftime('%H:%M:%S', time.localtime())}] 程序执行完成，准备退出...")
-        import os
         os._exit(0)
         
     except FileNotFoundError as e:
@@ -238,5 +236,4 @@ if __name__ == "__main__":
     finally:
         # 程序结束时不清理日志文件，因为可能需要查看日志
         # 强制退出程序，确保所有线程都被终止
-        import os
         os._exit(0)
