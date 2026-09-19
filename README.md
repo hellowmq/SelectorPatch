@@ -1,7 +1,7 @@
-# PiliarSelectorPatch 项目
+# SelectorPatch
 
 ## 概述
-PiliarSelectorPatch 是一个专业的Excel数据筛选工具，用于从Excel文件中提取数据总表和筛选条件，智能应用筛选规则后生成多格式的筛选结果文件。
+SelectorPatch 是一个本地 Excel 数据筛选工具：从约定的「总表」和「总表筛选」Sheet 读取数据与条件，再生成 CSV 和 XLSX 结果。
 
 ## 核心功能
 - 📊 **智能数据提取**：从Excel文件自动提取"总表"和"总表筛选"数据
@@ -14,12 +14,12 @@ PiliarSelectorPatch 是一个专业的Excel数据筛选工具，用于从Excel�
 ## 项目状态
 
 ### ⚠️ 当前版本状态
-- **功能状态**：✅ 核心功能完整可用
-- **代码质量**：✅ 已完成重构优化
-- **生产就绪**：⚠️ 需要性能优化后可用于生产环境
+- **当前版**：`0.2.0`（个人工具/源码版）
+- **自动化证据**：现有单元测试覆盖配置读写和核心精确匹配/空值通配逻辑
+- **未验证边界**：尚无大数据集性能、跨平台 GUI、完整 Excel 格式保真或生产环境验证
 
 ### 🔧 待修复问题
-详细问题列表请查看 [问题归档](docs/问题归档.md)
+已解决与剩余问题见 [问题归档](docs/问题归档.md)；版本变更以 [CHANGELOG](CHANGELOG.md) 为准。
 
 **已完成改进**：
 - ✅ 清理调试代码
@@ -42,8 +42,8 @@ PiliarSelectorPatch 是一个专业的Excel数据筛选工具，用于从Excel�
 ### 1. 环境准备
 ```bash
 # 克隆项目
-git clone <repository-url>
-cd PiliarSelectorPatch
+git clone https://github.com/hellowmq/SelectorPatch.git
+cd SelectorPatch
 
 # 创建虚拟环境（推荐）
 python -m venv venv
@@ -61,6 +61,9 @@ pip install -r requirements.txt
 ```
 
 ### 3. 准备数据文件
+
+⚠️ **先备份已有结果**：程序启动时会清空仓库根目录 `outputs/` 中的所有文件和子目录。请不要把唯一副本放在该目录中。
+
 确保你的Excel文件包含以下Sheet：
 - **总表**：包含原始数据，每列代表一个属性
 - **总表筛选**：包含筛选条件，每行代表一组筛选规则
@@ -87,7 +90,7 @@ python src/main.py path/to/your/file.xlsx
 
 ## 项目结构
 ```
-PiliarSelectorPatch/
+SelectorPatch/
 ├── src/                    # 源代码目录
 │   ├── main.py            # 主程序入口
 │   ├── clean_output.py    # 输出清理模块
@@ -144,7 +147,9 @@ PiliarSelectorPatch/
 在提交代码前，请确保：
 1. 遵循 [开发指南](instructions/agent_guide.md)
 2. 查看 [问题归档](docs/问题归档.md) 了解当前待修复问题
-3. 运行测试确保功能正常
+3. 运行现有单元测试：`python3 src/run_tests.py`
+
+现有测试不覆盖完整 Excel 读写流程、GUI 或打包产物，不能单独作为生产可用证据。
 
 ### 技术栈
 - **数据处理**：pandas, openpyxl
@@ -153,6 +158,8 @@ PiliarSelectorPatch/
 - **文件操作**：pathlib, os
 
 ## 平台兼容性
+
+下列是源码中保留的平台操作提示，不代表当前版本已在 Windows、macOS 和 Linux 全部实机验证。
 
 ### Windows
 ```cmd
@@ -184,11 +191,11 @@ python3 src/main.py
 程序运行日志保存在 `app.log` 文件中，包含详细的操作记录和错误信息。
 
 ## 版本历史
-- **当前版本**：功能完整，待代码优化
-- **下一版本计划**：代码重构、性能优化、测试覆盖
+- **当前版本**：`0.2.0`，已完成模块化重构与部分单元测试
+- **后续方向**：性能优化、端到端 Excel 验证、打包产物与多平台实机检查
 
 ## 许可证
-[待添加许可证信息]
+本仓库当前未设置开源许可证。公开可见不等于授予复制、修改或再分发权利；项目依赖仍各自遵循原许可。
 
 ## 联系方式
 如有问题或建议，请查看 [问题归档](docs/问题归档.md) 或提交Issue。
